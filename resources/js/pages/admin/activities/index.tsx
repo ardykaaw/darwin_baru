@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import { Activity, Calendar, CalendarX2, Pencil, Plus, Search, Trash2 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import Pagination from '@/components/pagination';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -25,11 +27,22 @@ export default function AdminActivitiesIndex({
     search,
 }: AdminActivitiesProps) {
     useFlashMessages();
+    const [itemToDelete, setItemToDelete] = useState<ActivityItem | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     function handleDelete(activity: ActivityItem) {
-        if (window.confirm(`Hapus aktivitas "${activity.title}"?`)) {
-            router.delete(`/admin/activities/${activity.id}`);
-        }
+        setItemToDelete(activity);
+    }
+
+    function confirmDelete() {
+        if (!itemToDelete) return;
+        setIsDeleting(true);
+        router.delete(`/admin/activities/${itemToDelete.id}`, {
+            onFinish: () => {
+                setIsDeleting(false);
+                setItemToDelete(null);
+            },
+        });
     }
 
     function handleSearch(e: React.FormEvent<HTMLFormElement>) {
@@ -109,16 +122,16 @@ export default function AdminActivitiesIndex({
                             <Table>
                                 <TableHeader>
                                     <TableRow className="bg-slate-50/80 hover:bg-slate-50/80">
-                                        <TableHead className="pl-6 text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-20 pl-6 text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Gambar
                                         </TableHead>
                                         <TableHead className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Judul
                                         </TableHead>
-                                        <TableHead className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-44 whitespace-nowrap text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Tanggal
                                         </TableHead>
-                                        <TableHead className="pr-6 text-right text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-28 pr-6 text-right text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Aksi
                                         </TableHead>
                                     </TableRow>
@@ -129,34 +142,31 @@ export default function AdminActivitiesIndex({
                                             key={activity.id}
                                             className="group border-border/60 transition-colors hover:bg-brand-teal/[0.03]"
                                         >
-                                            <TableCell className="py-3 pl-6">
+                                            <TableCell className="w-20 py-3 pl-6">
                                                 {activity.image ? (
                                                     <img
                                                         src={activity.image}
                                                         alt={activity.title}
-                                                        className="h-14 w-20 rounded-xl object-cover shadow-sm ring-1 ring-black/5 transition-transform duration-300 group-hover:scale-[1.03]"
+                                                        className="h-12 w-16 rounded-xl object-cover shadow-sm ring-1 ring-black/5 transition-transform duration-300 group-hover:scale-[1.03]"
                                                     />
                                                 ) : (
-                                                    <div className="flex h-14 w-20 items-center justify-center rounded-xl bg-gradient-to-br from-brand-orange/10 to-brand-teal/10 ring-1 ring-black/5">
+                                                    <div className="flex h-12 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-brand-orange/10 to-brand-teal/10 ring-1 ring-black/5">
                                                         <Calendar className="h-5 w-5 text-brand-orange-dark/70" />
                                                     </div>
                                                 )}
                                             </TableCell>
-                                            <TableCell>
-                                                <div className="max-w-72 truncate font-bold text-brand-navy">
+                                            <TableCell className="min-w-0 max-w-sm md:max-w-md py-3">
+                                                <div className="line-clamp-2 font-bold text-brand-navy leading-snug" title={activity.title}>
                                                     {activity.title}
                                                 </div>
-                                                <div className="mt-0.5 line-clamp-1 max-w-72 text-xs text-muted-foreground">
-                                                    {activity.content}
-                                                </div>
                                             </TableCell>
-                                            <TableCell>
-                                                <span className="inline-flex items-center gap-2 rounded-full bg-brand-orange/10 px-3 py-1.5 text-xs font-bold text-brand-orange-dark">
+                                            <TableCell className="w-44 whitespace-nowrap">
+                                                <span className="inline-flex items-center gap-2 rounded-full bg-brand-orange/10 px-3 py-1 text-xs font-bold text-brand-orange-dark">
                                                     <Calendar className="h-3.5 w-3.5" />
                                                     {activity.date}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="pr-6">
+                                            <TableCell className="w-28 pr-6 whitespace-nowrap text-right">
                                                 <div className="flex justify-end gap-1.5">
                                                     <Button
                                                         variant="ghost"
@@ -195,6 +205,19 @@ export default function AdminActivitiesIndex({
                     )}
                 </Card>
             </div>
+
+            <ConfirmDialog
+                open={!!itemToDelete}
+                onOpenChange={(open) => !open && setItemToDelete(null)}
+                title="Hapus Aktivitas?"
+                description={`Apakah Anda yakin ingin menghapus aktivitas "${itemToDelete?.title}"? Tindakan ini tidak dapat dibatalkan.`}
+                confirmText="Hapus Aktivitas"
+                cancelText="Batal"
+                variant="danger"
+                icon="trash"
+                isLoading={isDeleting}
+                onConfirm={confirmDelete}
+            />
         </>
     );
 }

@@ -35,16 +35,34 @@ export function useCurrentUrl(): UseCurrentUrlReturn {
             : 'http://localhost',
     ).pathname;
 
+    const normalizePath = (p: string): string => {
+        const trimmed = p.replace(/\/+$/, '');
+        return trimmed === '' ? '/' : trimmed;
+    };
+
     const isCurrentUrl: IsCurrentUrlFn = (
         urlToCheck: NonNullable<InertiaLinkProps['href']>,
         currentUrl?: string,
         startsWith: boolean = false,
     ) => {
-        const urlToCompare = currentUrl ?? currentUrlPath;
+        const urlToCompare = normalizePath(currentUrl ?? currentUrlPath);
         const urlString = toUrl(urlToCheck);
 
-        const comparePath = (path: string): boolean =>
-            startsWith ? urlToCompare.startsWith(path) : path === urlToCompare;
+        const comparePath = (rawPath: string): boolean => {
+            const path = normalizePath(rawPath);
+
+            if (!startsWith) {
+                return path === urlToCompare;
+            }
+
+            // Root ('/') and base admin ('/admin') must match exactly so they don't stay active on sub-routes
+            if (path === '/' || path === '/admin') {
+                return path === urlToCompare;
+            }
+
+            // Subroutes match exact or prefix with slash boundary
+            return urlToCompare === path || urlToCompare.startsWith(path + '/');
+        };
 
         if (!urlString.startsWith('http')) {
             return comparePath(urlString);

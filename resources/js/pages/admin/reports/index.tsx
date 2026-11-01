@@ -1,6 +1,7 @@
-import { Link } from '@inertiajs/react';
-import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import { Link, router } from '@inertiajs/react';
 import { Eye, Inbox, ShieldCheck, Trash2 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import Pagination from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -71,6 +72,8 @@ export default function AdminReportsIndex({
     filters,
 }: AdminReportsProps) {
     useFlashMessages();
+    const [reportToDelete, setReportToDelete] = useState<ReportItem | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     function handleSearch(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -101,9 +104,18 @@ export default function AdminReportsIndex({
     }
 
     function handleDelete(report: ReportItem) {
-        if (window.confirm(`Hapus laporan "${report.title}"?`)) {
-            router.delete(`/admin/reports/${report.id}`);
-        }
+        setReportToDelete(report);
+    }
+
+    function confirmDelete() {
+        if (!reportToDelete) return;
+        setIsDeleting(true);
+        router.delete(`/admin/reports/${reportToDelete.id}`, {
+            onFinish: () => {
+                setIsDeleting(false);
+                setReportToDelete(null);
+            },
+        });
     }
 
     return (
@@ -193,19 +205,19 @@ export default function AdminReportsIndex({
                                         <TableHead className="pl-6 text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Judul
                                         </TableHead>
-                                        <TableHead className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-32 whitespace-nowrap text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Kategori
                                         </TableHead>
-                                        <TableHead className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-36 whitespace-nowrap text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Pelapor
                                         </TableHead>
-                                        <TableHead className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-36 whitespace-nowrap text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Tanggal
                                         </TableHead>
-                                        <TableHead className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-32 whitespace-nowrap text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Status
                                         </TableHead>
-                                        <TableHead className="pr-6 text-right text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-28 pr-6 text-right text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Aksi
                                         </TableHead>
                                     </TableRow>
@@ -213,29 +225,27 @@ export default function AdminReportsIndex({
                                 <TableBody>
                                     {reports.data.map((report) => {
                                         const statusInfo =
-                                            STATUS_LABELS[report.status] ?? {
-                                                label: report.status,
-                                                dot: 'bg-slate-400',
-                                                className: 'bg-slate-100 text-slate-600',
-                                            };
+                                             STATUS_LABELS[report.status] ?? {
+                                                 label: report.status,
+                                                 dot: 'bg-slate-400',
+                                                 className: 'bg-slate-100 text-slate-600',
+                                             };
 
                                         return (
                                             <TableRow
                                                 key={report.id}
                                                 className="group border-border/60 transition-colors hover:bg-brand-teal/[0.03]"
                                             >
-                                                <TableCell className="max-w-64 pl-6">
+                                                <TableCell className="min-w-0 max-w-xs md:max-w-sm pl-6 py-3">
                                                     <Link
                                                         href={`/admin/reports/${report.id}`}
-                                                        className="block truncate font-bold text-brand-navy hover:text-brand-teal-dark"
+                                                        className="block line-clamp-2 font-bold text-brand-navy leading-snug hover:text-brand-teal-dark"
+                                                        title={report.title}
                                                     >
                                                         {report.title}
                                                     </Link>
-                                                    <div className="mt-0.5 line-clamp-1 max-w-64 text-xs text-muted-foreground">
-                                                        {report.description}
-                                                    </div>
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className="w-32 whitespace-nowrap">
                                                     {report.category ? (
                                                         <span className="inline-flex rounded-full bg-brand-navy/5 px-3 py-1 text-xs font-bold text-brand-navy">
                                                             {report.category}
@@ -244,9 +254,9 @@ export default function AdminReportsIndex({
                                                         <span className="text-muted-foreground">—</span>
                                                     )}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className="w-36 whitespace-nowrap">
                                                     {report.is_anonymous ? (
-                                                        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                                                        <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
                                                             <ShieldCheck className="h-3.5 w-3.5 text-brand-teal-dark" />
                                                             <span className="font-semibold">Anonim</span>
                                                         </span>
@@ -256,13 +266,13 @@ export default function AdminReportsIndex({
                                                         ))
                                                     )}
                                                 </TableCell>
-                                                <TableCell className="text-muted-foreground">
+                                                <TableCell className="w-36 whitespace-nowrap text-xs text-muted-foreground">
                                                     {report.created_at}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className="w-32 whitespace-nowrap">
                                                     <Badge
                                                         className={cn(
-                                                            'inline-flex items-center gap-1.5 rounded-full px-3 py-1',
+                                                            'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold',
                                                             statusInfo.className,
                                                         )}
                                                     >
@@ -270,7 +280,7 @@ export default function AdminReportsIndex({
                                                         {statusInfo.label}
                                                     </Badge>
                                                 </TableCell>
-                                                <TableCell className="pr-6">
+                                                <TableCell className="w-28 pr-6 whitespace-nowrap text-right">
                                                     <div className="flex justify-end gap-1.5">
                                                         <Button
                                                             variant="ghost"
@@ -310,6 +320,19 @@ export default function AdminReportsIndex({
                     )}
                 </Card>
             </div>
+
+            <ConfirmDialog
+                open={!!reportToDelete}
+                onOpenChange={(open) => !open && setReportToDelete(null)}
+                title="Hapus Laporan Pengaduan?"
+                description={`Apakah Anda yakin ingin menghapus laporan "${reportToDelete?.title}"? Tindakan ini bersifat permanen dan tidak dapat dibatalkan.`}
+                confirmText="Hapus Laporan"
+                cancelText="Batal"
+                variant="danger"
+                icon="trash"
+                isLoading={isDeleting}
+                onConfirm={confirmDelete}
+            />
         </>
     );
 }

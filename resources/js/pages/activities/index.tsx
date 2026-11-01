@@ -3,6 +3,7 @@ import { ArrowRight, ArrowUpRight, Calendar, Flag } from 'lucide-react';
 import Pagination from '@/components/pagination';
 import { PublicPageHero } from '@/components/public-page-hero';
 import { useFlashMessages } from '@/hooks/use-flash-messages';
+import { useTranslation } from '@/lib/i18n';
 import type { Paginated, ActivityItem } from '@/types';
 
 interface ActivitiesIndexProps {
@@ -11,15 +12,16 @@ interface ActivitiesIndexProps {
 
 export default function ActivitiesIndex({ activities }: ActivitiesIndexProps) {
     useFlashMessages();
+    const { t } = useTranslation();
 
     return (
         <>
-            <Head title="Jejak Kiprah" />
+            <Head title={t('activities_page.title')} />
 
             <PublicPageHero
-                badge="Jejak Kiprah"
-                title="Menapaki jejak karya dan gagasan."
-                description="Catatan aktivitas, kunjungan, dan program yang dijalankan — disajikan terbuka untuk publik."
+                badge={t('activities_page.hero_badge')}
+                title={t('activities_page.hero_title')}
+                description={t('activities_page.hero_desc')}
             />
 
             {/* Activities grid */}
@@ -30,8 +32,8 @@ export default function ActivitiesIndex({ activities }: ActivitiesIndexProps) {
                             <span className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-teal/10 text-brand-teal-dark">
                                 <Flag className="h-7 w-7" />
                             </span>
-                            <p className="mt-5 text-lg font-semibold text-brand-navy">Belum ada aktivitas</p>
-                            <p className="mt-2 text-sm text-brand-gray">Aktivitas akan segera ditambahkan.</p>
+                            <p className="mt-5 text-lg font-semibold text-brand-navy">{t('activities_page.empty_title')}</p>
+                            <p className="mt-2 text-sm text-brand-gray">{t('activities_page.empty_desc')}</p>
                         </div>
                     ) : (
                         <>
@@ -39,12 +41,11 @@ export default function ActivitiesIndex({ activities }: ActivitiesIndexProps) {
                                 <div className="flex items-center gap-3">
                                     <span className="h-8 w-1 rounded-full bg-gradient-to-b from-brand-orange to-brand-teal" />
                                     <p className="text-sm font-semibold tracking-wide text-brand-gray uppercase">
-                                        Jejak kiprah terpublikasi
+                                        {t('activities_page.spotlight')}
                                     </p>
                                 </div>
                                 <p className="text-sm text-brand-gray">
-                                    <span className="font-black text-brand-navy">{activities.total}</span> kegiatan
-                                    tersedia untuk publik
+                                    <span className="font-black text-brand-navy">{activities.total}</span> {t('activities_page.count_suffix')}
                                 </p>
                             </div>
 
@@ -78,7 +79,7 @@ export default function ActivitiesIndex({ activities }: ActivitiesIndexProps) {
 
                                             <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
                                                 <span className="inline-flex items-center gap-2 rounded-full bg-white/20 px-5 py-2.5 text-sm font-bold text-white shadow-lg backdrop-blur-md">
-                                                    Baca Selengkapnya
+                                                    {t('activities_page.read_more')}
                                                     <ArrowRight className="h-4 w-4" />
                                                 </span>
                                             </div>
@@ -98,7 +99,7 @@ export default function ActivitiesIndex({ activities }: ActivitiesIndexProps) {
                                                     : activity.content}
                                             </p>
                                             <div className="mt-5 inline-flex items-center gap-2 border-t border-slate-100 pt-4 text-sm font-bold text-brand-teal-dark">
-                                                Baca Selengkapnya
+                                                {t('activities_page.read_more')}
                                                 <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-teal/10 transition-all group-hover:bg-brand-teal group-hover:text-white">
                                                     <ArrowUpRight className="h-4 w-4" />
                                                 </span>

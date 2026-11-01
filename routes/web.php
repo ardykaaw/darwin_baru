@@ -12,7 +12,11 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LaporController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\TranslateController;
 use Illuminate\Support\Facades\Route;
+
+// --- TRANSLATION API ---
+Route::post('/api/translate', [TranslateController::class, 'translate'])->name('api.translate');
 
 // --- PUBLIC ROUTES ---
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -49,14 +53,14 @@ Route::prefix('admin')->group(function () {
         Route::get('/activities/create', [AdminActivityController::class, 'create'])->name('admin.activities.create');
         Route::post('/activities', [AdminActivityController::class, 'store'])->name('admin.activities.store');
         Route::get('/activities/{activity}/edit', [AdminActivityController::class, 'edit'])->name('admin.activities.edit');
-        Route::put('/activities/{activity}', [AdminActivityController::class, 'update'])->name('admin.activities.update');
+        Route::match(['put', 'patch'], '/activities/{activity}', [AdminActivityController::class, 'update'])->name('admin.activities.update');
         Route::delete('/activities/{activity}', [AdminActivityController::class, 'destroy'])->name('admin.activities.destroy');
 
         Route::get('/news', [AdminNewsController::class, 'index'])->name('admin.news.index');
         Route::get('/news/create', [AdminNewsController::class, 'create'])->name('admin.news.create');
         Route::post('/news', [AdminNewsController::class, 'store'])->name('admin.news.store');
         Route::get('/news/{news}/edit', [AdminNewsController::class, 'edit'])->name('admin.news.edit');
-        Route::put('/news/{news}', [AdminNewsController::class, 'update'])->name('admin.news.update');
+        Route::match(['put', 'patch'], '/news/{news}', [AdminNewsController::class, 'update'])->name('admin.news.update');
         Route::delete('/news/{news}', [AdminNewsController::class, 'destroy'])->name('admin.news.destroy');
 
         Route::get('/galleries', [AdminGalleryController::class, 'index'])->name('admin.galleries.index');
@@ -65,12 +69,12 @@ Route::prefix('admin')->group(function () {
 
         Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports.index');
         Route::get('/reports/{report}', [ReportController::class, 'show'])->name('admin.reports.show');
-        Route::patch('/reports/{report}/status', [ReportController::class, 'updateStatus'])->name('admin.reports.status');
+        Route::match(['put', 'patch'], '/reports/{report}/status', [ReportController::class, 'updateStatus'])->name('admin.reports.status');
         Route::delete('/reports/{report}', [ReportController::class, 'destroy'])->name('admin.reports.destroy');
 
         Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
         Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
-        Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+        Route::match(['put', 'patch'], '/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
         Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('admin.users.reset-password');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 

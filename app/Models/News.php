@@ -25,9 +25,4 @@ class News extends Model
             'is_published' => 'boolean',
         ];
     }
-
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
 }

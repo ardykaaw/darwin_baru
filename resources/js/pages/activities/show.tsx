@@ -2,6 +2,8 @@ import { Head, Link } from '@inertiajs/react';
 import { ArrowRight, ArrowUpRight, Calendar, Check, Copy, Flag } from 'lucide-react';
 import { useState } from 'react';
 import { PublicPageHero } from '@/components/public-page-hero';
+import { AutoTranslateBanner, useContentTranslation } from '@/hooks/use-content-translation';
+import { useTranslation } from '@/lib/i18n';
 import type { ActivityItem } from '@/types';
 
 interface ActivityShowProps {
@@ -10,7 +12,21 @@ interface ActivityShowProps {
 }
 
 export default function ActivityShow({ activity, otherActivities }: ActivityShowProps) {
+    const { t } = useTranslation();
     const [copied, setCopied] = useState(false);
+
+    const {
+        title: displayTitle,
+        content: displayContent,
+        isTranslating,
+        isTranslated,
+        showOriginal,
+        toggleOriginal,
+    } = useContentTranslation({
+        id: activity.id,
+        title: activity.title,
+        content: activity.content,
+    });
 
     async function copyLink() {
         try {
@@ -24,13 +40,13 @@ export default function ActivityShow({ activity, otherActivities }: ActivityShow
 
     return (
         <>
-            <Head title={activity.title} />
+            <Head title={displayTitle} />
 
             <PublicPageHero
                 badge={activity.date}
-                title={activity.title}
+                title={displayTitle}
                 backHref="/activities"
-                backLabel="Kembali ke Jejak Kiprah"
+                backLabel={t('activities_show.back')}
             />
 
             <section className="py-16 lg:py-20">
@@ -38,6 +54,12 @@ export default function ActivityShow({ activity, otherActivities }: ActivityShow
                     <div className="grid gap-10 lg:grid-cols-12">
                         {/* Content */}
                         <div className="lg:col-span-8">
+                            <AutoTranslateBanner
+                                isTranslating={isTranslating}
+                                isTranslated={isTranslated}
+                                showOriginal={showOriginal}
+                                onToggleOriginal={toggleOriginal}
+                            />
                             {activity.image && (
                                 <div className="group relative overflow-hidden rounded-3xl shadow-lg">
                                     <img
@@ -58,7 +80,7 @@ export default function ActivityShow({ activity, otherActivities }: ActivityShow
                                     </span>
                                     <span className="inline-flex items-center gap-2 rounded-full bg-brand-orange/10 px-4 py-2 text-sm font-bold text-brand-orange-dark">
                                         <Flag className="h-4 w-4" />
-                                        Aktivitas
+                                        {t('activities_show.badge')}
                                     </span>
                                 </div>
                                 <button
@@ -69,12 +91,12 @@ export default function ActivityShow({ activity, otherActivities }: ActivityShow
                                     {copied ? (
                                         <>
                                             <Check className="h-4 w-4 text-brand-teal" />
-                                            Tersalin
+                                            {t('activities_show.copied')}
                                         </>
                                     ) : (
                                         <>
                                             <Copy className="h-4 w-4" />
-                                            Bagikan
+                                            {t('activities_show.share')}
                                         </>
                                     )}
                                 </button>
@@ -82,7 +104,7 @@ export default function ActivityShow({ activity, otherActivities }: ActivityShow
 
                             <article className="prose prose-slate mt-8 max-w-none">
                                 <div className="text-base leading-relaxed whitespace-pre-wrap text-brand-gray first-letter:float-left first-letter:mr-3 first-letter:text-6xl first-letter:leading-none first-letter:font-black first-letter:text-brand-teal-dark lg:text-lg">
-                                    {activity.content}
+                                    {displayContent}
                                 </div>
                             </article>
 
@@ -91,17 +113,16 @@ export default function ActivityShow({ activity, otherActivities }: ActivityShow
                                 <div className="animate-drift absolute -top-16 -right-16 h-48 w-48 rounded-full bg-brand-orange/25 blur-3xl" />
                                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                                     <div>
-                                        <h3 className="text-xl font-black">Telusuri kiprah lainnya</h3>
+                                        <h3 className="text-xl font-black">{t('activities_show.cta_title')}</h3>
                                         <p className="mt-2 max-w-md text-sm leading-relaxed text-white/85">
-                                            Temukan catatan kegiatan dan program lain yang telah dijalankan Darwin
-                                            Center untuk Muna Barat.
+                                            {t('activities_show.cta_desc')}
                                         </p>
                                     </div>
                                     <Link
                                         href="/activities"
                                         className="inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-orange-dark px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-black/20 transition-all hover:-translate-y-0.5 hover:bg-brand-orange"
                                     >
-                                        Lihat Semua Aktivitas
+                                        {t('activities_show.cta_button')}
                                         <ArrowRight className="h-4 w-4" />
                                     </Link>
                                 </div>
@@ -114,7 +135,7 @@ export default function ActivityShow({ activity, otherActivities }: ActivityShow
                                 <div className="rounded-3xl border border-slate-200/80 bg-white p-7 shadow-sm lg:sticky lg:top-24">
                                     <div className="flex items-center gap-2">
                                         <span className="h-6 w-1 rounded-full bg-gradient-to-b from-brand-orange to-brand-teal" />
-                                        <h3 className="text-lg font-bold text-brand-navy">Aktivitas Lainnya</h3>
+                                        <h3 className="text-lg font-bold text-brand-navy">{t('activities_show.sidebar_title')}</h3>
                                     </div>
                                     <div className="mt-5 space-y-4">
                                         {otherActivities.map((item) => (
@@ -147,7 +168,7 @@ export default function ActivityShow({ activity, otherActivities }: ActivityShow
                                         href="/activities"
                                         className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-brand-teal-dark"
                                     >
-                                        Lihat Semua
+                                        {t('activities_show.view_all')}
                                         <ArrowUpRight className="h-4 w-4" />
                                     </Link>
                                 </div>

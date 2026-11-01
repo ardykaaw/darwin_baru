@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
-import { useForm } from '@inertiajs/react';
 import { ArrowLeft, FileText, Inbox, Loader2, Phone, ShieldCheck, Trash2, User2 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,24 +33,36 @@ const STATUS_OPTIONS = [
 
 export default function AdminReportShow({ report }: AdminReportShowProps) {
     useFlashMessages();
-
-    const { data, setData, put, processing } = useForm({ status: report.status });
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
 
     function handleStatusChange(status: string) {
-        if (status === data.status || processing) {
+        if (status === report.status || updatingStatus !== null) {
             return;
         }
 
-        setData('status', status);
-        put(`/admin/reports/${report.id}/status`, {
+        setUpdatingStatus(status);
+        router.patch(`/admin/reports/${report.id}/status`, { status }, {
             preserveScroll: true,
+            onFinish: () => {
+                setUpdatingStatus(null);
+            },
         });
     }
 
     function handleDelete() {
-        if (window.confirm(`Hapus laporan "${report.title}"?`)) {
-            router.delete(`/admin/reports/${report.id}`);
-        }
+        setShowDeleteConfirm(true);
+    }
+
+    function confirmDelete() {
+        setIsDeleting(true);
+        router.delete(`/admin/reports/${report.id}`, {
+            onFinish: () => {
+                setIsDeleting(false);
+                setShowDeleteConfirm(false);
+            },
+        });
     }
 
     const statusInfo = STATUS_OPTIONS.find((s) => s.value === report.status) ?? STATUS_OPTIONS[0];
@@ -179,22 +192,24 @@ export default function AdminReportShow({ report }: AdminReportShowProps) {
                             <CardContent className="grid gap-3 pt-6">
                                 <div className="grid grid-cols-2 gap-2.5">
                                     {STATUS_OPTIONS.map((option) => {
-                                        const active = data.status === option.value;
+                                        const active = report.status === option.value;
+                                        const isLoading = updatingStatus === option.value;
 
                                         return (
                                             <button
                                                 key={option.value}
                                                 type="button"
-                                                disabled={processing}
+                                                disabled={updatingStatus !== null}
                                                 onClick={() => handleStatusChange(option.value)}
                                                 className={cn(
                                                     'inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-bold transition-all',
                                                     active
                                                         ? 'border-brand-teal bg-brand-teal text-white shadow-md shadow-brand-teal/25'
                                                         : 'border-border/70 bg-card text-muted-foreground hover:border-brand-teal/40 hover:text-brand-navy',
+                                                    updatingStatus !== null && !isLoading && 'opacity-60 cursor-not-allowed',
                                                 )}
                                             >
-                                                {active ? (
+                                                {isLoading ? (
                                                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
                                                 ) : (
                                                     <span className={cn('h-1.5 w-1.5 rounded-full', option.dot)} />
@@ -205,13 +220,26 @@ export default function AdminReportShow({ report }: AdminReportShowProps) {
                                     })}
                                 </div>
                                 <p className="text-center text-xs font-semibold text-muted-foreground">
-                                    {processing ? 'Menyimpan status...' : 'Perubahan status otomatis tersimpan.'}
+                                    {updatingStatus !== null ? 'Menyimpan status...' : 'Perubahan status otomatis tersimpan.'}
                                 </p>
                             </CardContent>
                         </Card>
                     </div>
                 </div>
             </div>
+
+            <ConfirmDialog
+                open={showDeleteConfirm}
+                onOpenChange={setShowDeleteConfirm}
+                title="Hapus Laporan Pengaduan?"
+                description={`Apakah Anda yakin ingin menghapus laporan "${report.title}"? Tindakan ini bersifat permanen dan tidak dapat dibatalkan.`}
+                confirmText="Hapus Laporan"
+                cancelText="Batal"
+                variant="danger"
+                icon="trash"
+                isLoading={isDeleting}
+                onConfirm={confirmDelete}
+            />
         </>
     );
 }

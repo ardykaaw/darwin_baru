@@ -2,7 +2,9 @@ import { Head, Link } from '@inertiajs/react';
 import { ArrowRight, ArrowUpRight, Calendar, Newspaper } from 'lucide-react';
 import Pagination from '@/components/pagination';
 import { PublicPageHero } from '@/components/public-page-hero';
+import { useListTranslation } from '@/hooks/use-content-translation';
 import { useFlashMessages } from '@/hooks/use-flash-messages';
+import { useTranslation } from '@/lib/i18n';
 import type { Paginated, NewsItem } from '@/types';
 
 interface NewsIndexProps {
@@ -11,16 +13,18 @@ interface NewsIndexProps {
 
 export default function NewsIndex({ news }: NewsIndexProps) {
     useFlashMessages();
+    const { t } = useTranslation();
+    const { getTitle, getExcerpt } = useListTranslation(news.data);
     const [highlight, ...rest] = news.data;
 
     return (
         <>
-            <Head title="Berita" />
+            <Head title={t('news_page.title')} />
 
             <PublicPageHero
-                badge="Berita"
-                title="Kabar terkini dari Darwin Center."
-                description="Isu terkini, hasil kerja, dan agenda publik yang sedang berjalan."
+                badge={t('news_page.hero_badge')}
+                title={t('news_page.hero_title')}
+                description={t('news_page.hero_desc')}
             />
 
             <section className="py-16 lg:py-20">
@@ -30,8 +34,8 @@ export default function NewsIndex({ news }: NewsIndexProps) {
                             <span className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-teal/10 text-brand-teal-dark">
                                 <Newspaper className="h-7 w-7" />
                             </span>
-                            <p className="mt-5 text-lg font-semibold text-brand-navy">Belum ada berita</p>
-                            <p className="mt-2 text-sm text-brand-gray">Berita akan segera terbit.</p>
+                            <p className="mt-5 text-lg font-semibold text-brand-navy">{t('news_page.empty_title')}</p>
+                            <p className="mt-2 text-sm text-brand-gray">{t('news_page.empty_desc')}</p>
                         </div>
                     ) : (
                         <>
@@ -39,12 +43,11 @@ export default function NewsIndex({ news }: NewsIndexProps) {
                                 <div className="flex items-center gap-3">
                                     <span className="h-8 w-1 rounded-full bg-gradient-to-b from-brand-orange to-brand-teal" />
                                     <p className="text-sm font-semibold tracking-wide text-brand-gray uppercase">
-                                        Sorotan & berita terbaru
+                                        {t('news_page.spotlight')}
                                     </p>
                                 </div>
                                 <p className="text-sm text-brand-gray">
-                                    <span className="font-black text-brand-navy">{news.total}</span> berita telah
-                                    diterbitkan
+                                    <span className="font-black text-brand-navy">{news.total}</span> {t('news_page.published_count')}
                                 </p>
                             </div>
 
@@ -68,7 +71,7 @@ export default function NewsIndex({ news }: NewsIndexProps) {
 
                                     <span className="absolute top-6 left-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-bold tracking-wide text-brand-navy uppercase shadow-lg">
                                         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-orange" />
-                                        Berita Terbaru
+                                        {t('news_page.latest_badge')}
                                     </span>
 
                                     <div className="absolute inset-x-0 bottom-0 p-7 text-white lg:p-10">
@@ -79,17 +82,17 @@ export default function NewsIndex({ news }: NewsIndexProps) {
                                             </span>
                                             <span className="hidden h-1 w-1 rounded-full bg-white/40 sm:block" />
                                             <span className="hidden text-xs font-bold tracking-widest text-white/60 uppercase sm:block">
-                                                Berita Darwin Center
+                                                {t('news_page.dc_news')}
                                             </span>
                                         </div>
                                         <h2 className="dc-text-balance mt-3 max-w-3xl text-2xl font-black leading-snug lg:text-4xl">
-                                            {highlight.title}
+                                            {getTitle(highlight)}
                                         </h2>
                                         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/90 lg:text-base">
-                                            {highlight.content.replace(/<[^>]*>/g, '').slice(0, 180)}...
+                                            {getExcerpt(highlight, highlight.content.replace(/<[^>]*>/g, '').slice(0, 180))}...
                                         </p>
                                         <div className="mt-6 inline-flex items-center gap-3 rounded-full bg-brand-orange-dark px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-black/20 transition-all group-hover:gap-4 group-hover:bg-brand-orange">
-                                            Baca Sekarang
+                                            {t('news_page.read_now')}
                                             <ArrowRight className="h-4 w-4" />
                                         </div>
                                     </div>
@@ -110,7 +113,7 @@ export default function NewsIndex({ news }: NewsIndexProps) {
                                                 {item.image ? (
                                                     <img
                                                         src={item.image}
-                                                        alt={item.title}
+                                                        alt={getTitle(item)}
                                                         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                                                     />
                                                 ) : (
@@ -129,13 +132,13 @@ export default function NewsIndex({ news }: NewsIndexProps) {
                                             </div>
                                             <div className="flex flex-1 flex-col p-6">
                                                 <h2 className="line-clamp-2 text-lg font-bold leading-snug text-brand-navy transition-colors group-hover:text-brand-teal-dark">
-                                                    {item.title}
+                                                    {getTitle(item)}
                                                 </h2>
                                                 <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-brand-gray">
-                                                    {item.content.replace(/<[^>]*>/g, '').slice(0, 160)}
+                                                    {getExcerpt(item, item.content.replace(/<[^>]*>/g, '').slice(0, 160))}
                                                 </p>
                                                 <div className="mt-5 inline-flex items-center gap-2 border-t border-slate-100 pt-4 text-sm font-bold text-brand-teal-dark">
-                                                    Baca Selengkapnya
+                                                    {t('news_page.read_more')}
                                                     <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-teal/10 transition-all group-hover:bg-brand-teal group-hover:text-white">
                                                         <ArrowUpRight className="h-4 w-4" />
                                                     </span>

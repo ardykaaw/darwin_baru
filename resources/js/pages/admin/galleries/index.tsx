@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { useForm } from '@inertiajs/react';
 import { Eye, Images, ImagePlus, Loader2, Plus, Trash2, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import InputError from '@/components/input-error';
 import Pagination from '@/components/pagination';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,8 @@ export default function AdminGalleriesIndex({
     const [dialogOpen, setDialogOpen] = useState(false);
     const [preview, setPreview] = useState<string | null>(null);
     const [lightbox, setLightbox] = useState<GalleryItem | null>(null);
+    const [itemToDelete, setItemToDelete] = useState<GalleryItem | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const { data, setData, post, processing, errors, reset, progress } =
@@ -65,9 +68,18 @@ export default function AdminGalleriesIndex({
     }
 
     function handleDelete(gallery: GalleryItem) {
-        if (window.confirm(`Hapus galeri "${gallery.title}"?`)) {
-            router.delete(`/admin/galleries/${gallery.id}`);
-        }
+        setItemToDelete(gallery);
+    }
+
+    function confirmDelete() {
+        if (!itemToDelete) return;
+        setIsDeleting(true);
+        router.delete(`/admin/galleries/${itemToDelete.id}`, {
+            onFinish: () => {
+                setIsDeleting(false);
+                setItemToDelete(null);
+            },
+        });
     }
 
     return (
@@ -306,6 +318,19 @@ export default function AdminGalleriesIndex({
                     )}
                 </DialogContent>
             </Dialog>
+
+            <ConfirmDialog
+                open={!!itemToDelete}
+                onOpenChange={(open) => !open && setItemToDelete(null)}
+                title="Hapus Foto Galeri?"
+                description={`Apakah Anda yakin ingin menghapus foto "${itemToDelete?.title}"? Foto yang dihapus tidak dapat dipulihkan kembali.`}
+                confirmText="Hapus Foto"
+                cancelText="Batal"
+                variant="danger"
+                icon="trash"
+                isLoading={isDeleting}
+                onConfirm={confirmDelete}
+            />
         </>
     );
 }

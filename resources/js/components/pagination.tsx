@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { Paginated } from '@/types';
 
@@ -9,6 +10,8 @@ interface PaginationProps<T> {
 }
 
 export default function Pagination<T>({ pagination, className }: PaginationProps<T>) {
+    const { t } = useTranslation();
+
     if (pagination.last_page <= 1) {
         return null;
     }
@@ -24,7 +27,7 @@ export default function Pagination<T>({ pagination, className }: PaginationProps
     return (
         <nav className={cn('flex items-center justify-center gap-1.5', className)} aria-label="Pagination">
             {pagination.prev_page_url && (
-                <Link href={pagination.prev_page_url} className={linkClass(false)} aria-label="Halaman sebelumnya">
+                <Link href={pagination.prev_page_url} className={linkClass(false)} aria-label={t('pagination.prev')}>
                     <ChevronLeft className="h-4 w-4" />
                 </Link>
             )}
@@ -46,7 +49,7 @@ export default function Pagination<T>({ pagination, className }: PaginationProps
                     </Link>
                 ))}
             {pagination.next_page_url && (
-                <Link href={pagination.next_page_url} className={linkClass(false)} aria-label="Halaman berikutnya">
+                <Link href={pagination.next_page_url} className={linkClass(false)} aria-label={t('pagination.next')}>
                     <ChevronRight className="h-4 w-4" />
                 </Link>
             )}

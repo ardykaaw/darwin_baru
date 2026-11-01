@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import {
     Calendar,
@@ -8,6 +9,7 @@ import {
     Search,
     Trash2,
 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import Pagination from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,11 +33,22 @@ interface AdminNewsProps {
 
 export default function AdminNewsIndex({ news, search }: AdminNewsProps) {
     useFlashMessages();
+    const [itemToDelete, setItemToDelete] = useState<NewsItem | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     function handleDelete(item: NewsItem) {
-        if (window.confirm(`Hapus berita "${item.title}"?`)) {
-            router.delete(`/admin/news/${item.id}`);
-        }
+        setItemToDelete(item);
+    }
+
+    function confirmDelete() {
+        if (!itemToDelete) return;
+        setIsDeleting(true);
+        router.delete(`/admin/news/${itemToDelete.id}`, {
+            onFinish: () => {
+                setIsDeleting(false);
+                setItemToDelete(null);
+            },
+        });
     }
 
     function handleSearch(e: React.FormEvent<HTMLFormElement>) {
@@ -115,19 +128,19 @@ export default function AdminNewsIndex({ news, search }: AdminNewsProps) {
                             <Table>
                                 <TableHeader>
                                     <TableRow className="bg-slate-50/80 hover:bg-slate-50/80">
-                                        <TableHead className="pl-6 text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-20 pl-6 text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Gambar
                                         </TableHead>
                                         <TableHead className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Judul
                                         </TableHead>
-                                        <TableHead className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-36 whitespace-nowrap text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Tanggal
                                         </TableHead>
-                                        <TableHead className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-28 whitespace-nowrap text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Status
                                         </TableHead>
-                                        <TableHead className="pr-6 text-right text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-28 pr-6 text-right text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Aksi
                                         </TableHead>
                                     </TableRow>
@@ -138,47 +151,44 @@ export default function AdminNewsIndex({ news, search }: AdminNewsProps) {
                                             key={item.id}
                                             className="group border-border/60 transition-colors hover:bg-brand-teal/[0.03]"
                                         >
-                                            <TableCell className="py-3 pl-6">
+                                            <TableCell className="w-20 py-3 pl-6">
                                                 {item.image ? (
                                                     <img
                                                         src={item.image}
                                                         alt={item.title}
-                                                        className="h-14 w-20 rounded-xl object-cover shadow-sm ring-1 ring-black/5 transition-transform duration-300 group-hover:scale-[1.03]"
+                                                        className="h-12 w-16 rounded-xl object-cover shadow-sm ring-1 ring-black/5 transition-transform duration-300 group-hover:scale-[1.03]"
                                                     />
                                                 ) : (
-                                                    <div className="flex h-14 w-20 items-center justify-center rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 ring-1 ring-black/5">
+                                                    <div className="flex h-12 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 ring-1 ring-black/5">
                                                         <Newspaper className="h-5 w-5 text-muted-foreground/70" />
                                                     </div>
                                                 )}
                                             </TableCell>
-                                            <TableCell>
-                                                <div className="max-w-72 truncate font-bold text-brand-navy">
+                                            <TableCell className="min-w-0 max-w-sm md:max-w-md py-3">
+                                                <div className="line-clamp-2 font-bold text-brand-navy leading-snug" title={item.title}>
                                                     {item.title}
                                                 </div>
-                                                <div className="mt-0.5 truncate font-mono text-xs text-muted-foreground">
-                                                    /{item.slug}
-                                                </div>
                                             </TableCell>
-                                            <TableCell>
-                                                <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+                                            <TableCell className="w-36 whitespace-nowrap">
+                                                <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
                                                     <Calendar className="h-3.5 w-3.5 text-brand-teal-dark/70" />
                                                     {item.created_at}
                                                 </span>
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="w-28 whitespace-nowrap">
                                                 {item.is_published ? (
-                                                    <Badge className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-emerald-700">
+                                                    <Badge className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
                                                         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
                                                         Terbit
                                                     </Badge>
                                                 ) : (
-                                                    <Badge className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-slate-600">
+                                                    <Badge className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
                                                         <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
                                                         Draft
                                                     </Badge>
                                                 )}
                                             </TableCell>
-                                            <TableCell className="pr-6">
+                                            <TableCell className="w-28 pr-6 whitespace-nowrap text-right">
                                                 <div className="flex justify-end gap-1.5">
                                                     <Button
                                                         variant="ghost"
@@ -217,6 +227,19 @@ export default function AdminNewsIndex({ news, search }: AdminNewsProps) {
                     )}
                 </Card>
             </div>
+
+            <ConfirmDialog
+                open={!!itemToDelete}
+                onOpenChange={(open) => !open && setItemToDelete(null)}
+                title="Hapus Berita?"
+                description={`Apakah Anda yakin ingin menghapus berita "${itemToDelete?.title}"? Berita yang dihapus tidak dapat dipulihkan kembali.`}
+                confirmText="Hapus Berita"
+                cancelText="Batal"
+                variant="danger"
+                icon="trash"
+                isLoading={isDeleting}
+                onConfirm={confirmDelete}
+            />
         </>
     );
 }

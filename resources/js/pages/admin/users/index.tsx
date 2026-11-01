@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { useForm } from '@inertiajs/react';
 import { KeyRound, Loader2, Pencil, Plus, Search, Trash2, UserCog, Users } from 'lucide-react';
 import { useState } from 'react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import InputError from '@/components/input-error';
 import Pagination from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
@@ -46,6 +47,9 @@ export default function AdminUsersIndex({ users, search }: AdminUsersProps) {
     useFlashMessages();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editing, setEditing] = useState<UserItem | null>(null);
+    const [userToDelete, setUserToDelete] = useState<UserItem | null>(null);
+    const [userToReset, setUserToReset] = useState<UserItem | null>(null);
+    const [isActionLoading, setIsActionLoading] = useState(false);
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         name: '',
@@ -90,15 +94,33 @@ export default function AdminUsersIndex({ users, search }: AdminUsersProps) {
     }
 
     function handleResetPassword(user: UserItem) {
-        if (window.confirm(`Reset password "${user.name}" ke default (password)?`)) {
-            router.post(`/admin/users/${user.id}/reset-password`);
-        }
+        setUserToReset(user);
+    }
+
+    function confirmResetPassword() {
+        if (!userToReset) return;
+        setIsActionLoading(true);
+        router.post(`/admin/users/${userToReset.id}/reset-password`, {}, {
+            onFinish: () => {
+                setIsActionLoading(false);
+                setUserToReset(null);
+            },
+        });
     }
 
     function handleDelete(user: UserItem) {
-        if (window.confirm(`Hapus user "${user.name}"?`)) {
-            router.delete(`/admin/users/${user.id}`);
-        }
+        setUserToDelete(user);
+    }
+
+    function confirmDelete() {
+        if (!userToDelete) return;
+        setIsActionLoading(true);
+        router.delete(`/admin/users/${userToDelete.id}`, {
+            onFinish: () => {
+                setIsActionLoading(false);
+                setUserToDelete(null);
+            },
+        });
     }
 
     function handleSearch(e: React.FormEvent<HTMLFormElement>) {
@@ -189,16 +211,16 @@ export default function AdminUsersIndex({ users, search }: AdminUsersProps) {
                                         <TableHead className="pl-6 text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Nama
                                         </TableHead>
-                                        <TableHead className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-56 whitespace-nowrap text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Email
                                         </TableHead>
-                                        <TableHead className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-28 whitespace-nowrap text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Role
                                         </TableHead>
-                                        <TableHead className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-36 whitespace-nowrap text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Bergabung
                                         </TableHead>
-                                        <TableHead className="pr-6 text-right text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                        <TableHead className="w-32 pr-6 text-right text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                             Aksi
                                         </TableHead>
                                     </TableRow>
@@ -209,11 +231,11 @@ export default function AdminUsersIndex({ users, search }: AdminUsersProps) {
                                             key={user.id}
                                             className="group border-border/60 transition-colors hover:bg-brand-teal/[0.03]"
                                         >
-                                            <TableCell className="pl-6">
+                                            <TableCell className="pl-6 min-w-0 max-w-xs py-3">
                                                 <div className="flex items-center gap-3">
                                                     <span
                                                         className={cn(
-                                                            'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-black ring-2 ring-offset-1',
+                                                            'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-black ring-2 ring-offset-1',
                                                             user.role === 'admin'
                                                                 ? 'bg-gradient-to-br from-brand-teal to-brand-teal-dark text-white ring-brand-teal/20'
                                                                 : 'bg-slate-100 text-brand-navy ring-slate-200/60',
@@ -221,39 +243,39 @@ export default function AdminUsersIndex({ users, search }: AdminUsersProps) {
                                                     >
                                                         {getInitials(user.name)}
                                                     </span>
-                                                    <div>
-                                                        <div className="flex items-center gap-1.5 font-bold text-brand-navy">
+                                                    <div className="min-w-0">
+                                                        <div className="flex items-center gap-1.5 font-bold text-brand-navy truncate">
                                                             {user.name}
                                                             {user.role === 'admin' && (
-                                                                <UserCog className="h-3.5 w-3.5 text-brand-teal-dark" />
+                                                                <UserCog className="h-3.5 w-3.5 shrink-0 text-brand-teal-dark" />
                                                             )}
                                                         </div>
-                                                        <div className="text-xs text-muted-foreground">
-                                                            ID {user.id}
+                                                        <div className="text-[11px] text-muted-foreground">
+                                                            ID #{user.id}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-muted-foreground">
+                                            <TableCell className="w-56 whitespace-nowrap text-xs text-muted-foreground">
                                                 {user.email}
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="w-28 whitespace-nowrap">
                                                 {user.role === 'admin' ? (
-                                                    <Badge className="inline-flex items-center gap-1.5 rounded-full bg-brand-teal/15 px-3 py-1 text-brand-teal-dark">
+                                                    <Badge className="inline-flex items-center gap-1.5 rounded-full bg-brand-teal/15 px-3 py-1 text-xs font-semibold text-brand-teal-dark">
                                                         <span className="h-1.5 w-1.5 rounded-full bg-brand-teal" />
                                                         Admin
                                                     </Badge>
                                                 ) : (
-                                                    <Badge className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-slate-600">
+                                                    <Badge className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
                                                         <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
                                                         User
                                                     </Badge>
                                                 )}
                                             </TableCell>
-                                            <TableCell className="text-muted-foreground">
+                                            <TableCell className="w-36 whitespace-nowrap text-xs text-muted-foreground">
                                                 {user.created_at}
                                             </TableCell>
-                                            <TableCell className="pr-6">
+                                            <TableCell className="w-32 pr-6 whitespace-nowrap text-right">
                                                 <div className="flex justify-end gap-1.5">
                                                     <Button
                                                         variant="ghost"
@@ -365,6 +387,34 @@ export default function AdminUsersIndex({ users, search }: AdminUsersProps) {
                     </form>
                 </DialogContent>
             </Dialog>
+
+            {/* Confirm Delete User */}
+            <ConfirmDialog
+                open={!!userToDelete}
+                onOpenChange={(open) => !open && setUserToDelete(null)}
+                title="Hapus Akun Pengguna?"
+                description={`Apakah Anda yakin ingin menghapus akun "${userToDelete?.name}"? Pengguna ini tidak akan dapat login lagi ke panel admin.`}
+                confirmText="Hapus Akun"
+                cancelText="Batal"
+                variant="danger"
+                icon="trash"
+                isLoading={isActionLoading}
+                onConfirm={confirmDelete}
+            />
+
+            {/* Confirm Reset Password */}
+            <ConfirmDialog
+                open={!!userToReset}
+                onOpenChange={(open) => !open && setUserToReset(null)}
+                title="Reset Password Akun?"
+                description={`Password untuk akun "${userToReset?.name}" akan direset kembali ke default ("password"). Pengguna dapat login kembali menggunakan password tersebut.`}
+                confirmText="Reset Password"
+                cancelText="Batal"
+                variant="warning"
+                icon="warning"
+                isLoading={isActionLoading}
+                onConfirm={confirmResetPassword}
+            />
         </>
     );
 }

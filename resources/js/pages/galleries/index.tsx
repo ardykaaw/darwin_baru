@@ -6,6 +6,7 @@ import { PublicPageHero } from '@/components/public-page-hero';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useFlashMessages } from '@/hooks/use-flash-messages';
+import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { Paginated, GalleryItem } from '@/types';
 
@@ -17,6 +18,7 @@ const ASPECTS = ['aspect-[4/5]', 'aspect-square', 'aspect-[4/3]', 'aspect-[3/4]'
 
 export default function GalleriesIndex({ galleries }: GalleriesIndexProps) {
     useFlashMessages();
+    const { t } = useTranslation();
     const [selected, setSelected] = useState<GalleryItem | null>(null);
     const items = galleries.data;
 
@@ -56,20 +58,20 @@ prev();
 
     return (
         <>
-            <Head title="Galeri" />
+            <Head title={t('galleries_page.title')} />
 
             <PublicPageHero
-                badge="Galeri"
-                title="Dokumentasi visual kegiatan."
-                description="Foto-foto terbaik dari kegiatan dan program yang sedang berjalan."
+                badge={t('galleries_page.hero_badge')}
+                title={t('galleries_page.hero_title')}
+                description={t('galleries_page.hero_desc')}
             />
 
             <section className="py-16 lg:py-20">
                 <div className="mx-auto max-w-[1440px] px-5 lg:px-8">
                     {items.length === 0 ? (
                         <div className="rounded-3xl border border-dashed border-slate-300 bg-white py-20 text-center">
-                            <p className="text-lg font-semibold text-brand-navy">Belum ada galeri</p>
-                            <p className="mt-2 text-sm text-brand-gray">Dokumentasi akan segera ditambahkan.</p>
+                            <p className="text-lg font-semibold text-brand-navy">{t('galleries_page.empty_title')}</p>
+                            <p className="mt-2 text-sm text-brand-gray">{t('galleries_page.empty_desc')}</p>
                         </div>
                     ) : (
                         <>
@@ -77,12 +79,11 @@ prev();
                                 <div className="flex items-center gap-3">
                                     <span className="h-8 w-1 rounded-full bg-gradient-to-b from-brand-orange to-brand-teal" />
                                     <p className="text-sm font-semibold tracking-wide text-brand-gray uppercase">
-                                        Koleksi dokumentasi kami
+                                        {t('galleries_page.spotlight')}
                                     </p>
                                 </div>
                                 <p className="text-sm text-brand-gray">
-                                    <span className="font-black text-brand-navy">{galleries.total}</span> foto telah
-                                    dipublikasikan
+                                    <span className="font-black text-brand-navy">{galleries.total}</span> {t('galleries_page.published_count')}
                                 </p>
                             </div>
 
@@ -138,7 +139,7 @@ prev();
                         size="icon"
                         onClick={() => setSelected(null)}
                         className="absolute right-3 top-3 z-10 text-white hover:bg-white/10 hover:text-white"
-                        aria-label="Tutup"
+                        aria-label={t('galleries_page.close')}
                     >
                         <X className="h-5 w-5" />
                     </Button>
@@ -151,7 +152,7 @@ prev();
                                 onClick={prev}
                                 disabled={currentIndex <= 0}
                                 className="absolute left-3 top-1/2 z-10 -translate-y-1/2 text-white hover:bg-white/10 hover:text-white disabled:opacity-30"
-                                aria-label="Sebelumnya"
+                                aria-label={t('galleries_page.prev')}
                             >
                                 <ChevronLeft className="h-7 w-7" />
                             </Button>
@@ -161,7 +162,7 @@ prev();
                                 onClick={next}
                                 disabled={currentIndex >= items.length - 1}
                                 className="absolute right-3 top-1/2 z-10 -translate-y-1/2 text-white hover:bg-white/10 hover:text-white disabled:opacity-30"
-                                aria-label="Berikutnya"
+                                aria-label={t('galleries_page.next')}
                             >
                                 <ChevronRight className="h-7 w-7" />
                             </Button>

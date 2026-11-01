@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { ArrowLeft, Sparkles } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
 
 interface PublicPageHeroProps {
     badge: string;
@@ -10,6 +11,8 @@ interface PublicPageHeroProps {
 }
 
 export function PublicPageHero({ badge, title, description, backHref, backLabel }: PublicPageHeroProps) {
+    const { t } = useTranslation();
+
     return (
         <section className="dc-grid-pattern relative overflow-hidden bg-gradient-to-br from-brand-navy via-brand-navy to-brand-navy-dark pt-32 text-white lg:pt-36">
             <div className="animate-drift absolute -right-24 -top-24 h-80 w-80 rounded-full bg-brand-orange/20 blur-3xl" />
@@ -28,7 +31,7 @@ export function PublicPageHero({ badge, title, description, backHref, backLabel 
                             <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/25 bg-white/10 backdrop-blur transition-colors hover:bg-white/20">
                                 <ArrowLeft className="h-3.5 w-3.5" />
                             </span>
-                            {backLabel ?? 'Kembali'}
+                            {backLabel ?? t('hero_component.back')}
                         </Link>
                     )}
                     <span className="animate-fade-up mt-8 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/15 px-4 py-1.5 text-sm font-semibold backdrop-blur-md">
@@ -50,7 +53,7 @@ export function PublicPageHero({ badge, title, description, backHref, backLabel 
             <div
                 className="pointer-events-none absolute top-1/2 right-8 hidden -translate-y-1/2 text-[10px] font-bold tracking-[0.45em] text-white/20 uppercase [writing-mode:vertical-rl] lg:block"
             >
-                Kabupaten Muna Barat
+                {t('hero_component.district')}
             </div>
         </section>
     );

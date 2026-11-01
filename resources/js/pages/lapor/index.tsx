@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useFlashMessages } from '@/hooks/use-flash-messages';
+import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 interface LaporProps {
@@ -16,6 +17,7 @@ interface LaporProps {
 
 export default function Lapor({ flash }: LaporProps) {
     useFlashMessages();
+    const { t } = useTranslation();
     const [submitted, setSubmitted] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -43,21 +45,21 @@ export default function Lapor({ flash }: LaporProps) {
     if (submitted) {
         return (
             <>
-                <Head title="Lapor Darwin" />
+                <Head title={t('lapor_page.title')} />
                 <section className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-navy via-brand-navy to-brand-navy-dark px-5 pt-20">
                     <div className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-2xl">
                         <span className="mx-auto inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand-teal/10">
                             <CheckCircle2 className="h-9 w-9 text-brand-teal" />
                         </span>
-                        <h1 className="mt-6 text-2xl font-bold text-brand-navy">Laporan Terkirim</h1>
+                        <h1 className="mt-6 text-2xl font-bold text-brand-navy">{t('lapor_page.success_title')}</h1>
                         <p className="mt-3 text-sm leading-relaxed text-brand-gray">
-                            {successMessage || 'Terima kasih atas partisipasi Anda. Laporan akan segera kami tindak lanjuti.'}
+                            {successMessage || t('lapor_page.success_desc')}
                         </p>
                         <Button
                             className="mt-8 w-full rounded-full bg-brand-teal py-3 hover:bg-brand-teal-dark"
                             onClick={() => setSubmitted(false)}
                         >
-                            Kirim Laporan Lain
+                            {t('lapor_page.send_another')}
                         </Button>
                     </div>
                 </section>
@@ -67,12 +69,12 @@ export default function Lapor({ flash }: LaporProps) {
 
     return (
         <>
-            <Head title="Lapor Darwin" />
+            <Head title={t('lapor_page.title')} />
 
             <PublicPageHero
-                badge="Lapor Darwin"
-                title="Sampaikan aspirasi, laporan, dan masukan Anda."
-                description="Suara Anda penting. Sampaikan secara terbuka atau anonim — kami akan menindaklanjuti dengan transparan."
+                badge={t('lapor_page.hero_badge')}
+                title={t('lapor_page.hero_title')}
+                description={t('lapor_page.hero_desc')}
             />
 
             <section className="py-16 lg:py-20">
@@ -80,23 +82,23 @@ export default function Lapor({ flash }: LaporProps) {
                     {/* Info */}
                     <div className="lg:col-span-4">
                         <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm lg:sticky lg:top-24">
-                            <h2 className="text-xl font-bold text-brand-navy">Ketentuan Pelaporan</h2>
+                            <h2 className="text-xl font-bold text-brand-navy">{t('lapor_page.rules_title')}</h2>
                             <ul className="mt-6 space-y-5">
                                 <li className="flex gap-3.5">
                                     <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-teal/15 text-brand-teal-dark">
                                         <User2 className="h-4.5 w-4.5" />
                                     </span>
-                                    <p className="text-sm leading-relaxed text-brand-gray">
-                                        Anda dapat melapor <strong className="text-brand-navy">secara anonim</strong> atau
-                                        menyertakan identitas untuk memudahkan tindak lanjut.
-                                    </p>
+                                    <p
+                                        className="text-sm leading-relaxed text-brand-gray"
+                                        dangerouslySetInnerHTML={{ __html: t('lapor_page.rule_anon') }}
+                                    />
                                 </li>
                                 <li className="flex gap-3.5">
                                     <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-orange/15 text-brand-orange-dark">
                                         <Inbox className="h-4.5 w-4.5" />
                                     </span>
                                     <p className="text-sm leading-relaxed text-brand-gray">
-                                        Laporan akan diverifikasi dan diproses sesuai kategori serta skala prioritas.
+                                        {t('lapor_page.rule_process')}
                                     </p>
                                 </li>
                                 <li className="flex gap-3.5">
@@ -104,7 +106,7 @@ export default function Lapor({ flash }: LaporProps) {
                                         <Phone className="h-4.5 w-4.5" />
                                     </span>
                                     <p className="text-sm leading-relaxed text-brand-gray">
-                                        Butuh bantuan langsung? Hubungi kami di <b className="text-brand-navy">0860 733 3779</b>.
+                                        {t('lapor_page.rule_phone')} <b className="text-brand-navy">0860 733 3779</b>.
                                     </p>
                                 </li>
                             </ul>
@@ -121,7 +123,7 @@ export default function Lapor({ flash }: LaporProps) {
                                 <div className="grid gap-2.5">
                                     <div className="flex items-center justify-between">
                                         <Label htmlFor="title">
-                                            Judul Laporan <span className="text-red-500">*</span>
+                                            {t('lapor_page.field_title')} <span className="text-red-500">*</span>
                                         </Label>
                                         <span
                                             className={cn(
@@ -136,7 +138,7 @@ export default function Lapor({ flash }: LaporProps) {
                                         id="title"
                                         value={data.title}
                                         onChange={(e) => setData('title', e.target.value)}
-                                        placeholder="Contoh: Perbaikan jalan di Desa X"
+                                        placeholder={t('lapor_page.field_title_placeholder')}
                                         maxLength={255}
                                         required
                                     />
@@ -144,7 +146,7 @@ export default function Lapor({ flash }: LaporProps) {
                                 </div>
 
                                 <div className="grid gap-2.5">
-                                    <Label htmlFor="category">Kategori</Label>
+                                    <Label htmlFor="category">{t('lapor_page.field_category')}</Label>
                                     <select
                                         id="category"
                                         value={data.category}
@@ -154,20 +156,20 @@ export default function Lapor({ flash }: LaporProps) {
                                             !data.category && 'text-muted-foreground',
                                         )}
                                     >
-                                        <option value="">Pilih kategori (opsional)</option>
-                                        <option value="Infrastruktur">Infrastruktur</option>
-                                        <option value="Pendidikan">Pendidikan</option>
-                                        <option value="Kesehatan">Kesehatan</option>
-                                        <option value="Pelayanan Publik">Pelayanan Publik</option>
-                                        <option value="Lingkungan">Lingkungan</option>
-                                        <option value="Lainnya">Lainnya</option>
+                                        <option value="">{t('lapor_page.field_category_placeholder')}</option>
+                                        <option value="Infrastruktur">{t('lapor_page.cat_infrastructure')}</option>
+                                        <option value="Pendidikan">{t('lapor_page.cat_education')}</option>
+                                        <option value="Kesehatan">{t('lapor_page.cat_health')}</option>
+                                        <option value="Pelayanan Publik">{t('lapor_page.cat_public_service')}</option>
+                                        <option value="Lingkungan">{t('lapor_page.cat_environment')}</option>
+                                        <option value="Lainnya">{t('lapor_page.cat_other')}</option>
                                     </select>
                                 </div>
 
                                 <div className="grid gap-2.5">
                                     <div className="flex items-center justify-between">
                                         <Label htmlFor="description">
-                                            Deskripsi Laporan <span className="text-red-500">*</span>
+                                            {t('lapor_page.field_description')} <span className="text-red-500">*</span>
                                         </Label>
                                         <span
                                             className={cn(
@@ -178,15 +180,15 @@ export default function Lapor({ flash }: LaporProps) {
                                             )}
                                         >
                                             {data.description.length < 10
-                                                ? `minimal 10 karakter (${data.description.length})`
-                                                : `${data.description.length} karakter`}
+                                                ? `${t('lapor_page.min_chars')} (${data.description.length})`
+                                                : `${data.description.length} ${t('lapor_page.chars')}`}
                                         </span>
                                     </div>
                                     <Textarea
                                         id="description"
                                         value={data.description}
                                         onChange={(e) => setData('description', e.target.value)}
-                                        placeholder="Jelaskan secara detail kronologi, lokasi, dan harapan Anda..."
+                                        placeholder={t('lapor_page.field_description_placeholder')}
                                         rows={6}
                                         required
                                     />
@@ -200,9 +202,9 @@ export default function Lapor({ flash }: LaporProps) {
                                             <ShieldCheck className="h-5 w-5" />
                                         </span>
                                         <div>
-                                            <div className="text-sm font-bold text-brand-navy">Lapor secara anonim</div>
+                                            <div className="text-sm font-bold text-brand-navy">{t('lapor_page.anonymous_title')}</div>
                                             <p className="mt-1 text-xs leading-relaxed text-brand-gray">
-                                                Sembunyikan nama dan nomor telepon Anda dari laporan.
+                                                {t('lapor_page.anonymous_desc')}
                                             </p>
                                         </div>
                                     </div>
@@ -213,7 +215,7 @@ export default function Lapor({ flash }: LaporProps) {
                                             'relative h-7 w-12 shrink-0 rounded-full transition-colors',
                                             data.is_anonymous ? 'bg-brand-teal' : 'bg-slate-300',
                                         )}
-                                        aria-label="Toggle anonim"
+                                        aria-label={t('lapor_page.toggle_anon')}
                                     >
                                         <span
                                             className={cn(
@@ -227,25 +229,25 @@ export default function Lapor({ flash }: LaporProps) {
                                 {!data.is_anonymous && (
                                     <div className="grid gap-6 sm:grid-cols-2">
                                         <div className="grid gap-2.5">
-                                            <Label htmlFor="reporter_name">Nama Lengkap</Label>
+                                            <Label htmlFor="reporter_name">{t('lapor_page.field_name')}</Label>
                                             <Input
                                                 id="reporter_name"
                                                 value={data.reporter_name}
                                                 onChange={(e) => setData('reporter_name', e.target.value)}
-                                                placeholder="Nama Anda"
+                                                placeholder={t('lapor_page.field_name_placeholder')}
                                             />
                                             {errors.reporter_name && (
                                                 <p className="text-sm text-red-500">{errors.reporter_name}</p>
                                             )}
                                         </div>
                                         <div className="grid gap-2.5">
-                                            <Label htmlFor="reporter_phone">Nomor Telepon</Label>
+                                            <Label htmlFor="reporter_phone">{t('lapor_page.field_phone')}</Label>
                                             <Input
                                                 id="reporter_phone"
                                                 type="tel"
                                                 value={data.reporter_phone}
                                                 onChange={(e) => setData('reporter_phone', e.target.value)}
-                                                placeholder="08xx xxxx xxxx"
+                                                placeholder={t('lapor_page.field_phone_placeholder')}
                                             />
                                             {errors.reporter_phone && (
                                                 <p className="text-sm text-red-500">{errors.reporter_phone}</p>
@@ -262,12 +264,12 @@ export default function Lapor({ flash }: LaporProps) {
                                     {processing ? (
                                         <span className="flex items-center gap-2">
                                             <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                                            Mengirim...
+                                            {t('lapor_page.submitting')}
                                         </span>
                                     ) : (
                                         <>
                                             <Send className="h-5 w-5" />
-                                            Kirim Laporan
+                                            {t('lapor_page.submit')}
                                         </>
                                     )}
                                 </Button>
