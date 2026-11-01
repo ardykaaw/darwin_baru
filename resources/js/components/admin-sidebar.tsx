@@ -19,6 +19,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { AppearanceToggle } from '@/components/appearance-toggle';
 import { UserInfo } from '@/components/user-info';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import type { NavItem, User } from '@/types';
@@ -124,6 +125,13 @@ export function AdminSidebar() {
                                         {auth.user && <UserInfo user={auth.user} showEmail />}
                                     </div>
                                 </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <div className="px-2 py-1.5">
+                                    <div className="mb-1.5 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                                        Tema Tampilan
+                                    </div>
+                                    <AppearanceToggle variant="tabs" className="w-full justify-between" />
+                                </div>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={handleLogout} data-test="logout-button">
                                     <LogOut className="mr-2" />

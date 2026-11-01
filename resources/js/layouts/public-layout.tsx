@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { ArrowRight, Menu, Phone, Mail, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { AppearanceToggle } from '@/components/appearance-toggle';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { useTranslation } from '@/lib/i18n';
@@ -88,6 +89,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                             </Link>
                         ))}
                         <LanguageSwitcher />
+                        <AppearanceToggle />
                         <Link
                             href="/lapor"
                             className={cn(
@@ -159,6 +161,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                         ))}
                         <div className="my-2 h-px bg-slate-100" />
                         <LanguageSwitcher variant="mobile" />
+                        <div className="my-2 h-px bg-slate-100 dark:bg-slate-800" />
+                        <AppearanceToggle variant="mobile" />
                     </nav>
                     <div className="border-t border-slate-100 p-4">
                         <Link
